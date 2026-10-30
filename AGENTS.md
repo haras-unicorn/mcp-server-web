@@ -36,5 +36,5 @@ set there comes from haraspkgs.
 
 Commits follow Conventional Commits, because release-plz builds versions and
 changelogs from them. Merging its release PR publishes to crates.io and creates
-the GitHub release, which starts the workflow that uploads binaries. The
-secrets it needs are listed in `docs/src/releasing.md`.
+the GitHub release, which starts the workflow that uploads binaries. The secrets
+it needs are listed in `docs/src/releasing.md`.
