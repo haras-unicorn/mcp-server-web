@@ -1,0 +1,49 @@
+{
+  "jobs":
+    {
+      "build":
+        {
+          "runs-on": "${{ matrix.os }}",
+          "steps":
+            [
+              { "uses": "actions/checkout@v4", "with": { "fetch-depth": 0 } },
+              {
+                "uses": "cachix/install-nix-action@v31",
+                "with":
+                  {
+                    "extra_nix_config":
+                      "experimental-features = nix-command flakes
+                      auto-allocate-uids cgroups\nauto-allocate-uids = true\n",
+                  },
+              },
+              {
+                "uses": "cachix/cachix-action@v15",
+                "with":
+                  {
+                    "authToken": "${{ secrets.CACHIX_AUTH_TOKEN }}",
+                    "extraPullNames": "haras-releases",
+                    "name": "haras",
+                  },
+              },
+              {
+                "env":
+                  {
+                    "GH_TOKEN": "${{ secrets.GITHUB_TOKEN }}",
+                    "TAG": "${{ github.event.release.tag_name }}",
+                  },
+                "run":
+                  "path=\"$(nix build --no-link --print-out-paths --show-trace
+                  .#mcp-server-web)\"\nsystem=\"$(nix eval --impure --raw --expr
+                  builtins.currentSystem)\"\ncp \"$path/bin/mcp-server-web\"
+                  \"mcp-server-web-$system\"\ngh release upload \"$TAG\"
+                  \"mcp-server-web-$system\" --clobber\n",
+              },
+            ],
+          "strategy":
+            { "matrix": { "os": ["ubuntu-latest", "ubuntu-24.04-arm"] } },
+        },
+    },
+  "name": "build",
+  "on": { "release": { "types": ["published"] } },
+  "permissions": { "contents": "write" },
+}

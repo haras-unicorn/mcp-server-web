@@ -1,0 +1,8 @@
+[book]
+title = "mcp-server-web"
+authors = ["haras-unicorn"]
+language = "en"
+src = "src"
+
+[output.html]
+git-repository-url = "https://github.com/haras-unicorn/mcp-server-web"
