@@ -79,6 +79,11 @@
             "stdenv"
             "taplo"
             "tokio"
+            "lanczos"
+            "imageops"
+            "mktemp"
+            "moka"
+            "webp"
           ];
         };
 
@@ -328,18 +333,6 @@
             packages = [ pkgs.nix ];
             commands = ''nix build ".#docs" --no-link --print-out-paths'';
           };
-
-          lint = {
-            description = "Run clippy over the workspace.";
-            packages = [ toolchain ];
-            commands = "cargo clippy --workspace --all-targets -- -D warnings";
-          };
-
-          test = {
-            description = "Run the workspace tests.";
-            packages = [ toolchain ];
-            commands = "cargo test --workspace";
-          };
         };
 
         workflows = {
@@ -425,6 +418,29 @@
         };
 
         check.checks = {
+          clippy = {
+            packages = [ toolchain ];
+            commands = ''
+              CARGO_HOME="$(mktemp -d)"
+              export CARGO_HOME
+              trap 'rm -rf "$CARGO_HOME"' EXIT
+              cp ${cargoVendorDir}/config.toml "$CARGO_HOME/config.toml"
+              cargo clippy --workspace --all-targets -- -D warnings
+            '';
+          };
+
+          test = {
+            packages = [ toolchain ];
+            commands = ''
+              CARGO_HOME="$(mktemp -d)"
+              export CARGO_HOME
+              trap 'rm -rf "$CARGO_HOME"' EXIT
+              cp ${cargoVendorDir}/config.toml "$CARGO_HOME/config.toml"
+              export SSL_CERT_DIR=${pkgs.cacert}/etc/ssl/certs
+              cargo test --workspace
+            '';
+          };
+
           cspell = {
             packages = [ cspellWrapped ];
             commands = "cspell lint . --no-progress";

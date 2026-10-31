@@ -3,18 +3,35 @@
 Everything is an environment variable, read once at startup. An empty value
 counts as unset.
 
-| Variable                | Default                    | Meaning                          |
-| ----------------------- | -------------------------- | -------------------------------- |
-| `MCP_WEB_SEARCH_URL`    | unset                      | Search engine URL, see below.    |
-| `MCP_WEB_ALLOW_DOMAINS` | unset (allow all)          | Domains that may be fetched.     |
-| `MCP_WEB_DENY_DOMAINS`  | unset                      | Domains that are never fetched.  |
-| `MCP_WEB_TIMEOUT_SECS`  | `30`                       | Timeout of each request.         |
-| `MCP_WEB_MAX_BYTES`     | `5242880` (5 MiB)          | Largest body that is downloaded. |
-| `MCP_WEB_USER_AGENT`    | `mcp-server-web/<version>` | `User-Agent` header.             |
-| `RUST_LOG`              | errors only                | Log filter. Logs go to stderr.   |
+| Variable                    | Default                    | Meaning                                        |
+| --------------------------- | -------------------------- | ---------------------------------------------- |
+| `MCP_WEB_SEARCH_URL`        | unset                      | Search engine URL, see below.                  |
+| `MCP_WEB_ALLOW_DOMAINS`     | unset (allow all)          | Domains that may be fetched.                   |
+| `MCP_WEB_DENY_DOMAINS`      | unset                      | Domains that are never fetched.                |
+| `MCP_WEB_TIMEOUT_SECS`      | `30`                       | Timeout of each request.                       |
+| `MCP_WEB_MAX_BYTES`         | `5242880` (5 MiB)          | Largest body that is downloaded.               |
+| `MCP_WEB_MAX_CHARS`         | `20000`                    | Most characters one `web_fetch` call returns.  |
+| `MCP_WEB_CACHE_TTL_SECS`    | `300` (5 minutes)          | How long a fetched page is cached. `0` is off. |
+| `MCP_WEB_CACHE_MAX_ENTRIES` | `128`                      | Most pages cached. `0` is off.                 |
+| `MCP_WEB_MAX_REDIRECTS`     | `10`                       | Redirects followed before giving up.           |
+| `MCP_WEB_SEARCH_LIMIT`      | `10`                       | Results of a search call without a `limit`.    |
+| `MCP_WEB_MAX_IMAGE_PIXELS`  | `1048576` (1024²)          | Most pixels of an image. `0` is off.           |
+| `MCP_WEB_USER_AGENT`        | `mcp-server-web/<version>` | `User-Agent` header.                           |
+| `RUST_LOG`                  | errors only                | Log filter. Logs go to stderr.                 |
 
-A bad number in `MCP_WEB_TIMEOUT_SECS` or `MCP_WEB_MAX_BYTES` stops the server
-at startup.
+A bad number in any of the numeric variables stops the server at startup.
+
+## Cache
+
+`web_fetch` keeps downloaded pages in memory, keyed by the requested URL. Both
+modes share one entry, because the page is cached as downloaded and converted on
+each call. Parallel calls for a page that is being downloaded wait for that one
+download. A page expires `MCP_WEB_CACHE_TTL_SECS` after it was cached. When the
+cache is full, the least recently used page is dropped. Failed fetches are not
+cached.
+
+In the worst case the cache holds `MCP_WEB_CACHE_MAX_ENTRIES` pages of
+`MCP_WEB_MAX_BYTES` each, which is 640 MiB with the defaults.
 
 ## Search engine
 

@@ -20,10 +20,8 @@ docs/                          this book (mdBook)
 
 ```sh
 nix develop      # toolchain, formatters, checks
-dev test         # cargo test
-dev lint         # clippy
 dev format       # format everything
-dev check        # spell check, markdown lint, nix lint, static link check
+dev check        # tests, clippy, spell check, markdown lint, nix lint, static link check
 dev docs         # build this book
 nix flake check  # all checks, as CI runs them
 nix build        # the static binary
