@@ -146,6 +146,14 @@
         prettierWrapped = harasPackages.makeBubblewrapWrapper {
           name = "prettier";
           package = pkgs.prettier;
+          files = {
+            ".prettierignore" = {
+              text = ''
+                flake.lock
+                CHANGELOG.md
+              '';
+            };
+          };
         };
 
         taploWrapped = harasPackages.makeBubblewrapWrapper {
