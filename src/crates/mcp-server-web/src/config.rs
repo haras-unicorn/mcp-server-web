@@ -9,6 +9,12 @@ const SEARCH_URL_VAR: &str = "MCP_WEB_SEARCH_URL";
 const TIMEOUT_VAR: &str = "MCP_WEB_TIMEOUT_SECS";
 const MAX_BYTES_VAR: &str = "MCP_WEB_MAX_BYTES";
 const USER_AGENT_VAR: &str = "MCP_WEB_USER_AGENT";
+const MAX_CHARS_VAR: &str = "MCP_WEB_MAX_CHARS";
+const CACHE_TTL_VAR: &str = "MCP_WEB_CACHE_TTL_SECS";
+const CACHE_MAX_ENTRIES_VAR: &str = "MCP_WEB_CACHE_MAX_ENTRIES";
+const MAX_REDIRECTS_VAR: &str = "MCP_WEB_MAX_REDIRECTS";
+const SEARCH_LIMIT_VAR: &str = "MCP_WEB_SEARCH_LIMIT";
+const MAX_IMAGE_PIXELS_VAR: &str = "MCP_WEB_MAX_IMAGE_PIXELS";
 
 /// Which domains `web_fetch` (and search results) may touch.
 ///
@@ -84,6 +90,20 @@ pub struct Config {
     pub timeout: Duration,
     pub max_bytes: usize,
     pub user_agent: String,
+    /// The most characters one `web_fetch` call may return.
+    pub max_chars: usize,
+    /// How long a fetched page stays cached. Zero turns the cache off.
+    pub cache_ttl: Duration,
+    /// How many pages the cache holds before it evicts the least recently
+    /// used one. Zero turns the cache off.
+    pub cache_max_entries: u64,
+    /// How many redirects `web_fetch` follows before it gives up.
+    pub max_redirects: usize,
+    /// How many results `web_search` returns when the call has no `limit`.
+    pub search_limit: usize,
+    /// The most pixels an image may have. Bigger images are scaled down.
+    /// Zero leaves images as they are.
+    pub max_image_pixels: u64,
 }
 
 impl Config {
@@ -95,6 +115,12 @@ impl Config {
         let user_agent = Some(var(USER_AGENT_VAR))
             .filter(|value| !value.trim().is_empty())
             .unwrap_or_else(|| format!("mcp-server-web/{}", env!("CARGO_PKG_VERSION")));
+        let max_chars = parse_var(MAX_CHARS_VAR, 20_000)?;
+        let cache_ttl = parse_var(CACHE_TTL_VAR, 5 * 60)?;
+        let cache_max_entries = parse_var(CACHE_MAX_ENTRIES_VAR, 128)?;
+        let max_redirects = parse_var(MAX_REDIRECTS_VAR, 10)?;
+        let search_limit = parse_var(SEARCH_LIMIT_VAR, 10)?;
+        let max_image_pixels = parse_var(MAX_IMAGE_PIXELS_VAR, 1024 * 1024)?;
 
         Ok(Self {
             policy,
@@ -102,6 +128,12 @@ impl Config {
             timeout: Duration::from_secs(timeout),
             max_bytes,
             user_agent,
+            max_chars,
+            cache_ttl: Duration::from_secs(cache_ttl),
+            cache_max_entries,
+            max_redirects,
+            search_limit,
+            max_image_pixels,
         })
     }
 }

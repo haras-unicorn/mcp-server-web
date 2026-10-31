@@ -11,10 +11,19 @@ categories = ["command-line-utilities"]
 
 [dependencies]
 anyhow = "1"
+base64 = "0.23"
+image = { version = "0.25", default-features = false, features = [
+  "gif",
+  "jpeg",
+  "png",
+  "webp",
+] }
+moka = { version = "0.12", features = ["future"] }
 readabilityrs = "0.1"
 reqwest = { version = "0.13", features = ["json"] }
 rmcp = { version = "3", features = ["server", "transport-io"] }
 serde = { version = "1", features = ["derive"] }
+serde_json = "1"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }

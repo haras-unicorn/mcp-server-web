@@ -18,10 +18,11 @@ haraspkgs (`makeFlake`). See `README.md` for usage and `docs/` for the book.
 ## Development
 
 Enter the dev shell with `nix develop` (direnv does it through `.envrc`). It
-provides `dev` subcommands for testing, linting, formatting, checking and
-building the docs. `dev --help` lists them. `nix flake check` runs everything CI
-runs. Cargo works offline in the shell against crates vendored by Nix, so after
-changing dependencies update `Cargo.lock` with network access.
+provides `dev` subcommands for formatting, checking (tests, clippy, spelling and
+other lints) and building the docs. `dev --help` lists them. `nix flake check`
+runs everything CI runs. Cargo works offline in the shell against crates
+vendored by Nix, so after changing dependencies update `Cargo.lock` with network
+access.
 
 Tests never use the network.
 
